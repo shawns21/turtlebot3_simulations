@@ -143,14 +143,14 @@
               <max_angle>3.141592653589793</max_angle>
             </horizontal>
 	    <vertical>
-              <samples>16</samples>
-              <resolution>1</resolution>
-              <min_angle>-0.2617993877991494</min_angle>
-              <max_angle> 0.2617993877991494</max_angle>
+              <samples>32</samples>
+              <resolution>1.000000</resolution>
+              <min_angle>-0.5</min_angle>
+              <max_angle>0.2617993877991494</max_angle>
             </vertical>
           </scan>
           <range>
-            <min>0.3</min>
+            <min>0.1</min>
             <max>131.0</max>
             <resolution>0.001</resolution>
           </range>
@@ -168,9 +168,79 @@
           <output_type>sensor_msgs/PointCloud2</output_type>
           <frame_name>velodyne</frame_name>
 	  <organize_cloud>False</organize_cloud>
-          <min_range>0.9</min_range>
+          <min_range>0.1</min_range>
           <max_range>130.0</max_range>
           <gaussian_noise>0.008</gaussian_noise>
+        </plugin>
+      </sensor>
+    </link>
+
+    <link name="base_scan">
+      <inertial>
+        <pose>-0.020 0 0.161 0 0 0</pose>
+        <inertia>
+          <ixx>0.001</ixx>
+          <ixy>0.000</ixy>
+          <ixz>0.000</ixz>
+          <iyy>0.001</iyy>
+          <iyz>0.000</iyz>
+          <izz>0.001</izz>
+        </inertia>
+        <mass>0.114</mass>
+      </inertial>
+
+      <collision name="lidar_sensor_collision">
+        <pose>-0.020 0 0.161 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.0508</radius>
+            <length>0.055</length>
+          </cylinder>
+        </geometry>
+      </collision>
+
+      <visual name="lidar_sensor_visual">
+        <pose>-0.032 0 0.171 0 0 0</pose>
+        <geometry>
+          <mesh>
+            <uri>model://turtlebot3_common/meshes/lds.dae</uri>
+            <scale>0.001 0.001 0.001</scale>
+          </mesh>
+        </geometry>
+      </visual>
+
+     <sensor name="hls_lfcd_lds" type="ray">
+        <always_on>true</always_on>
+        <visualize>true</visualize>
+        <pose>-0.032 0 0.171 0 0 0</pose>
+        <update_rate>5</update_rate>
+        <ray>
+          <scan>
+            <horizontal>
+              <samples>360</samples>
+              <resolution>1.000000</resolution>
+              <min_angle>0.000000</min_angle>
+              <max_angle>6.280000</max_angle>
+            </horizontal>
+          </scan>
+          <range>
+            <min>0.120000</min>
+            <max>3.5</max>
+            <resolution>0.015000</resolution>
+          </range>
+          <noise>
+            <type>gaussian</type>
+            <mean>0.0</mean>
+            <stddev>0.01</stddev>
+          </noise>
+        </ray>
+        <plugin name="turtlebot3_laserscan" filename="libgazebo_ros_ray_sensor.so">
+          <ros>
+            <!-- <namespace>/tb3</namespace> -->
+            <remapping>~/out:=scan</remapping>
+          </ros>
+          <output_type>sensor_msgs/LaserScan</output_type>
+          <frame_name>base_scan</frame_name>
         </plugin>
       </sensor>
     </link>
@@ -363,6 +433,15 @@
       </axis>
     </joint>
 
+    <joint name="lidar_joint" type="fixed">
+      <parent>base_link</parent>
+      <child>base_scan</child>
+      <pose>-0.032 0 0.171 0 0 0</pose>
+      <axis>
+        <xyz>0 0 1</xyz>
+      </axis>
+    </joint>
+
     <joint name="velodyne_joint" type="fixed">
       <parent>base_link</parent>
       <child>velodyne</child>
@@ -371,6 +450,7 @@
         <xyz>0 0 1</xyz>
       </axis>
     </joint>
+
 
     <plugin name="turtlebot3_diff_drive" filename="libgazebo_ros_diff_drive.so">
 
@@ -414,5 +494,19 @@
       <joint_name>wheel_left_joint</joint_name>
       <joint_name>wheel_right_joint</joint_name>
     </plugin>      
+
+    <plugin name="libgazebo_ros_p3d" filename="libgazebo_ros_p3d.so">
+        <ros>
+	   <namespace>/ground_truth</namespace>
+	   <remapping>/ground_truth/odom:=/ground_truth</remapping>
+        </ros>
+        <frame_name>world</frame_name>
+        <body_name>base_link</body_name>
+        <update_rate>30.0</update_rate>
+        <gaussian_noise>0.0</gaussian_noise>
+	<xyzOffsets>0 0 0</xyzOffsets>
+        <rpyOffsets>0 0 0</rpyOffsets>
+    </plugin>
+
   </model>
 </sdf>

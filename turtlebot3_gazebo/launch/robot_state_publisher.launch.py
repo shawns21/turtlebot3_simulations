@@ -57,4 +57,11 @@ def generate_launch_description():
                 'robot_description': robot_desc
             }],
         ),
+        Node(
+            package='tf2_ros',
+            executable='static_transform_publisher',
+            name='static_tf_pub',
+            output='screen',
+            arguments=['0', '0', '0', '0', '0', '0', 'world', 'odom']
+        )
     ])
